@@ -1,0 +1,29 @@
+// This block should specify the buildscript dependencies
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.1'  // Gradle Plugin for Android
+        classpath 'com.google.gms:google-services:4.4.1'  // Google Services plugin
+    }
+}
+
+// This applies to all sub-projects (modules)
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
