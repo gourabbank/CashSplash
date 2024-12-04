@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'home_screen.dart';
+
 class AddExpenseScreen extends StatefulWidget {
   @override
   _AddExpenseScreenState createState() => _AddExpenseScreenState();
@@ -39,7 +41,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         'date': DateTime.now().toIso8601String(),
       });
       if (mounted) {
-        Navigator.pop(context);  // Pop to go back to the previous screen, preserving bottom navigation
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        } else {
+          print("No screens to pop to, navigating to fallback.");
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()), // Assuming HomeScreen is a sensible fallback
+          );
+        }
       }
     } catch (e) {
       print("Error saving expense: $e");

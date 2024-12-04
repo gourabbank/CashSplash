@@ -1,19 +1,11 @@
 import 'package:flutter/material.dart';
-import 'budget_pie_chart.dart'; // Make sure to import the Pie Chart widget
-import 'add_expense_screen.dart';
-import 'expense_data.dart';
-import 'view_expenses_screen.dart';
-import 'profile_settings_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-
-import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'budget_pie_chart.dart';
 import 'add_expense_screen.dart';
 import 'view_expenses_screen.dart';
 import 'profile_settings_screen.dart';
+import 'expense_data.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -22,8 +14,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  double _totalBudget = 2000.0;  // Default budget
-  String _userName = "User";  // Default user name
+  double _totalBudget = 2000.0; // Default budget
+  String _userName = "User"; // Default name
 
   @override
   void initState() {
@@ -44,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         }
       }).catchError((error) {
-        print("Error fetching user profile: $error");
+        print("Failed to fetch user profile: $error");
       });
     }
   }
@@ -59,23 +51,43 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, $_userName'),
+        title: Text('Welcome, $_userName'), // Dynamic user name in the app bar
       ),
       body: IndexedStack(
         index: _currentIndex,
         children: [
+          // Real-time pie chart on the Home tab
           StreamBuilder(
-            stream: FirebaseDatabase.instance.ref('expenses/${FirebaseAuth.instance.currentUser?.uid}').onValue,
+            stream: FirebaseDatabase.instance
+                .ref('expenses/${FirebaseAuth.instance.currentUser?.uid}')
+                .onValue,
             builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
-              if (snapshot.hasData && !snapshot.hasError && snapshot.data!.snapshot.value != null) {
-                Map<dynamic, dynamic> expensesData = Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator()); // Loading indicator
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error loading expenses data')); // Error message
+              }
+              if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
+                Map<dynamic, dynamic> expensesData =
+                Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
                 List<ExpenseData> expenses = [];
                 expensesData.forEach((key, value) {
-                  expenses.add(ExpenseData(category: value['category'], amount: double.parse(value['amount'].toString())));
+                  expenses.add(ExpenseData(
+                    category: value['category'],
+                    amount: double.tryParse(value['amount'].toString()) ?? 0.0,
+                  ));
                 });
-                return BudgetPieChart(totalBudget: _totalBudget, expenses: expenses);
+                return BudgetPieChart(
+                  totalBudget: _totalBudget,
+                  expenses: expenses,
+                );
               } else {
-                return Center(child: Text('No expenses data available'));
+                // No expenses data
+                return BudgetPieChart(
+                  totalBudget: _totalBudget,
+                  expenses: [],
+                );
               }
             },
           ),
@@ -87,6 +99,9 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
+        backgroundColor: Colors.blueGrey, // Custom background color for the bottom navigation bar
+        selectedItemColor: Colors.white, // Color for the selected item
+        unselectedItemColor: Colors.grey, // Color for unselected items
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: "Add Expense"),

@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Expense Tracker',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        hintColor: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: AuthenticationWrapper(),
@@ -77,8 +78,9 @@ class _MainAppScreenState extends State<MainAppScreen> {
 
   final List<Widget> _pages = [
     HomeScreen(),  // Your actual HomeScreen widget
-    ViewExpensesScreen(),  // Your ViewExpensesScreen widget
     AddExpenseScreen(),  // Your AddExpenseScreen widget
+    ViewExpensesScreen(),  // Your ViewExpensesScreen widget
+
     ProfileSettingsScreen(),  // Your ProfileScreen widget
   ];
 
@@ -95,29 +97,7 @@ class _MainAppScreenState extends State<MainAppScreen> {
         index: _selectedIndex,
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Expenses',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            label: 'Add Expense',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        onTap: _onItemTapped,
-      ),
+      
     );
   }
 }
