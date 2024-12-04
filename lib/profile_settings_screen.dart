@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'login_screen.dart'; // Ensure you have the LoginScreen widget
 
 class ProfileSettingsScreen extends StatefulWidget {
   @override
@@ -58,6 +59,14 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     }
   }
 
+  void logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+          (Route<dynamic> route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -92,6 +101,14 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           ElevatedButton(
             onPressed: saveProfileSettings,
             child: Text('Save Settings'),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: logout,
+            child: Text('Logout'),
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white, backgroundColor: Colors.red, // White text color
+            ),
           ),
         ],
       ),

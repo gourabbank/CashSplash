@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
-import 'expense_model.dart';
-import 'expense_service.dart';
-
+// AddExpenseScreen.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -32,8 +28,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   }
 
   Future<void> _saveExpense() async {
-    if (_formKey.currentState!.validate()) {
-      String? imageString = _receiptImage != null ? base64Encode(_receiptImage!.readAsBytesSync()) : null;
+    if (!_formKey.currentState!.validate()) return;
+    try {
+      String? imageString = _receiptImage != null ? base64Encode(await _receiptImage!.readAsBytes()) : null;
       DatabaseReference dbRef = FirebaseDatabase.instance.ref("expenses/${FirebaseAuth.instance.currentUser?.uid}");
       await dbRef.push().set({
         'amount': _amountController.text,
@@ -41,7 +38,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         'receiptImage': imageString,
         'date': DateTime.now().toIso8601String(),
       });
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);  // Pop to go back to the previous screen, preserving bottom navigation
+      }
+    } catch (e) {
+      print("Error saving expense: $e");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save expense. Error: $e')));
     }
   }
 
@@ -79,7 +81,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               onPressed: _pickImage,
               child: Text('Add Receipt Image'),
             ),
-            if (_receiptImage != null) Image.file(_receiptImage!),
+            _receiptImage != null ? Image.file(_receiptImage!) : Container(),
             ElevatedButton(
               onPressed: _saveExpense,
               child: Text('Save Expense'),
