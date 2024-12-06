@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'budget_pie_chart.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'add_expense_screen.dart';
+import 'budget_pie_chart.dart';
 import 'view_expenses_screen.dart';
 import 'profile_settings_screen.dart';
 import 'expense_data.dart';
@@ -14,9 +15,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  double _totalBudget = 2000.0; // Default budget
-  double _remainingBudget = 2000.0; // Initialized to total budget initially
-  String _userName = "User"; // Default user name
+  double _totalBudget = 2000.0;
+  double _remainingBudget = 2000.0;
+  String _userName = "User";
 
   @override
   void initState() {
@@ -34,12 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _userName = data['name'] ?? _userName;
             _totalBudget = double.tryParse(data['budgetGoal'].toString()) ?? _totalBudget;
-            _remainingBudget = _totalBudget; // Reset remaining budget on data fetch
+            _remainingBudget = _totalBudget;
           });
           calculateRemainingBudget();
         }
-      }).catchError((error) {
-        print("Failed to fetch user profile: $error");
       });
     }
   }
@@ -57,103 +56,271 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // title: Text('Welcome, $_userName'),
-        backgroundColor: Colors.purple.shade200,
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          _buildModernHomeScreen(),
+          AddExpenseScreen(),
+          ViewExpensesScreen(),
+          ProfileSettingsScreen(),
+        ],
       ),
-      body: Container(
-        color: Colors.pink.shade100, // Light pink background color
-        child: IndexedStack(
-          index: _currentIndex,
-          children: [
-            buildHomeScreenBody(),
-            AddExpenseScreen(),
-            ViewExpensesScreen(),
-            ProfileSettingsScreen(),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 15,
+              offset: Offset(0, -3),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          backgroundColor: Colors.white,
+          selectedItemColor: Color(0xFF6B46C1),
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: "Home"),
+            BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: "Add"),
+            BottomNavigationBarItem(icon: Icon(Icons.list_alt_rounded), label: "View"),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: onTabTapped,
-        currentIndex: _currentIndex,
-        backgroundColor: Colors.purple,
-        selectedItemColor: Colors.pink.shade100,
-        unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Add Expense"),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: "View Expenses"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Profile"),
+    );
+  }
+
+  Widget _buildModernHomeScreen() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            height: 200,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF6B46C1), Color(0xFF8B5CF6)],
+              ),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Welcome back,',
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      _userName,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Transform.translate(
+            offset: Offset(0, -30),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  _buildBudgetCard(),
+                  SizedBox(height: 20),
+                  _buildExpensesSection(),
+                  SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget buildHomeScreenBody() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildBudgetCard() {
+    return Card(
+      elevation: 8,
+      shadowColor: Colors.black26,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Total Budget',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '\$${_totalBudget.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6B46C1),
+                      ),
+                    ),
+                  ],
+                ),
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Color(0xFF6B46C1),
+                  child: Icon(Icons.account_balance_wallet, color: Colors.white),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Container(
+              padding: EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: _remainingBudget > 0 ? Colors.green[50] : Colors.red[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Total Budget: \$${_totalBudget.toStringAsFixed(2)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text('Remaining: \$${_remainingBudget.toStringAsFixed(2)}', style: TextStyle(fontSize: 16, color: Colors.green)),
+                  Text(
+                    'Remaining Budget',
+                    style: TextStyle(
+                      color: _remainingBudget > 0 ? Colors.green[700] : Colors.red[700],
+                    ),
+                  ),
+                  Text(
+                    '\$${_remainingBudget.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _remainingBudget > 0 ? Colors.green[700] : Colors.red[700],
+                    ),
+                  ),
                 ],
               ),
-              ElevatedButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileSettingsScreen())),
-                child: Text('Adjust Budget'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey[300]), // Lighter button color
-              )
-            ],
-          ),
+            ),
+          ],
         ),
-        Expanded(
-          child: StreamBuilder(
-            stream: FirebaseDatabase.instance.ref('expenses/${FirebaseAuth.instance.currentUser?.uid}').onValue,
-            builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Error loading expenses data'));
-              }
-              if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
-                Map<dynamic, dynamic> expensesData = Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
-                List<ExpenseData> expenses = [];
-                expensesData.forEach((key, value) {
-                  expenses.add(ExpenseData(
-                    category: value['category'],
-                    amount: double.tryParse(value['amount'].toString()) ?? 0.0,
-                  ));
-                });
-                return Container(
-                  height: 20, // Reducing the size by setting height
-                  child: BudgetPieChart(
-                    totalBudget: _totalBudget,
-                    expenses: expenses,
-                  ),
-                );
-              } else {
-                return Text("No expenses data available", style: TextStyle(fontSize: 20, color: Colors.grey));
-              }
-            },
+      ),
+    );
+  }
+
+  Widget _buildExpensesSection() {
+    return StreamBuilder(
+      stream: FirebaseDatabase.instance.ref('expenses/${FirebaseAuth.instance.currentUser?.uid}').onValue,
+      builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator(
+            color: Color(0xFF6B46C1),
+          ));
+        }
+
+        if (snapshot.hasError) {
+          return _buildErrorCard();
+        }
+
+        if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+          return _buildEmptyState();
+        }
+
+        Map<dynamic, dynamic> expensesData = Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
+        List<ExpenseData> expenses = expensesData.entries.map((e) {
+          return ExpenseData(
+            category: e.value['category'],
+            amount: double.tryParse(e.value['amount'].toString()) ?? 0.0,
+          );
+        }).toList();
+
+        return Container(
+          margin: EdgeInsets.only(bottom: 20),
+          child: BudgetPieChart(
+            totalBudget: _totalBudget,
+            expenses: expenses,
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildErrorCard() {
+    return Container(
+      height: 200,
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Card(
+        elevation: 8,
+        shadowColor: Colors.black26,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        color: Colors.pink[50],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline,
+                size: 48,
+                color: Colors.red[400]
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Error loading expenses data',
+              style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.red[400],
+                  fontWeight: FontWeight.w500
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      height: 200,
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Card(
+        elevation: 8,
+        shadowColor: Colors.black26,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        color: Colors.pink[50],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.account_balance_wallet_outlined,
+                size: 48,
+                color: Color(0xFF6B46C1)
+            ),
+            SizedBox(height: 16),
+            Text(
+              'No expenses recorded yet',
+              style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF6B46C1),
+                  fontWeight: FontWeight.w500
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
+

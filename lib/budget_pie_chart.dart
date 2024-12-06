@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'expense_data.dart';
-
 class BudgetPieChart extends StatelessWidget {
   final double totalBudget;
   final List<ExpenseData> expenses;
@@ -14,56 +13,58 @@ class BudgetPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: 450, // Adjusted height for the pie chart container
-          width: double.infinity,
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            color: Colors.pink[50], // Changed to light pink
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: PieChart(
-                PieChartData(
-                  borderData: FlBorderData(show: false),
-                  sectionsSpace: 2,
-                  centerSpaceRadius: 30, // Adjusted center space radius
-                  sections: showingSections(),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            height: 300,
+            width: double.infinity,
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              color: Colors.pink[50],
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: PieChart(
+                  PieChartData(
+                    borderData: FlBorderData(show: false),
+                    sectionsSpace: 2,
+                    centerSpaceRadius: 30,
+                    sections: showingSections(),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          decoration: BoxDecoration(
-            color: Colors.pink[100], // Lighter pink for the legend
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.pink[200]!, // Slightly darker pink for elevation shadow
-                blurRadius: 6,
-                offset: Offset(0, 3), // Position of the shadow
-              ),
-            ],
+          SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.pink[100],
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.pink[200]!,
+                  blurRadius: 6,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Wrap(
+              alignment: WrapAlignment.spaceEvenly,
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: expenses.map((expense) => legendItem(expense)).toList(),
+            ),
           ),
-          child: Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            spacing: 8.0,
-            runSpacing: 8.0,
-            children: expenses.map((expense) => legendItem(expense)).toList(),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   List<PieChartSectionData> showingSections() {
     return List.generate(expenses.length, (i) {
-      final bool showTitle = expenses[i].amount / totalBudget > 0.05; // Only show title if the slice is large enough
-
+      final bool showTitle = expenses[i].amount / totalBudget > 0.05;
       return PieChartSectionData(
         color: _getColor(i),
         value: expenses[i].amount,
@@ -72,7 +73,8 @@ class BudgetPieChart extends StatelessWidget {
         titleStyle: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.grey[600]),  // Light grey and slim font
+            color: Colors.grey[600]
+        ),
       );
     });
   }
@@ -90,8 +92,10 @@ class BudgetPieChart extends StatelessWidget {
           ),
         ),
         SizedBox(width: 8),
-        Text(expense.category + ' - \$${expense.amount.toStringAsFixed(2)}',
-            style: TextStyle(fontSize: 14)), // Adjusted for consistent text size
+        Text(
+            expense.category + ' - \$${expense.amount.toStringAsFixed(2)}',
+            style: TextStyle(fontSize: 14)
+        ),
       ],
     );
   }
@@ -105,7 +109,6 @@ class BudgetPieChart extends StatelessWidget {
       Colors.purple,
       Colors.brown,
     ];
-
     return colors[index % colors.length];
   }
 }
