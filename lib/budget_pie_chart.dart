@@ -14,79 +14,65 @@ class BudgetPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<PieChartSectionData> sections = [];
-
-    // Define a color map for categories
-    final Map<String, Color> categoryColors = {
-      'Food': Colors.blue,
-      'Travel': Colors.orange,
-      'Housing': Colors.green,
-      'Utilities': Colors.purple,
-      'Miscellaneous': Colors.red,
-    };
-
-    // Calculate total expenses and remaining budget
-    double totalExpenses = expenses.fold(0, (sum, item) => sum + item.amount);
-    double budgetLeft = totalBudget - totalExpenses > 0 ? totalBudget - totalExpenses : 0;
-
-    // Add sections for each expense
-    expenses.forEach((expense) {
-      sections.add(
-        PieChartSectionData(
-          color: categoryColors[expense.category] ?? Colors.grey, // Default to grey if category not mapped
-          value: expense.amount,
-          title: '${expense.amount.toStringAsFixed(1)}',
-          radius: 60.0,
-          titleStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+    return AspectRatio(
+      aspectRatio: 1.3,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: PieChart(
+            PieChartData(
+              pieTouchData: PieTouchData(
+                touchCallback: (FlTouchEvent event, PieTouchResponse? response) {
+                  // Handle touch interactions here
+                },
+                enabled: true,
+              ),
+              borderData: FlBorderData(show: false),
+              sectionsSpace: 2,
+              centerSpaceRadius: 50,
+              sections: showingSections(),
+              startDegreeOffset: -90,
+            ),
           ),
         ),
-      );
-    });
-
-    // Add remaining budget section if applicable
-    if (budgetLeft > 0) {
-      sections.add(
-        PieChartSectionData(
-          color: Colors.grey[200], // Subtle color for remaining budget
-          value: budgetLeft,
-          title: 'Left \$${budgetLeft.toStringAsFixed(1)}',
-          radius: 60.0,
-          titleStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      );
-    }
-
-    // Full budget section when no expenses exist
-    if (expenses.isEmpty) {
-      sections.add(
-        PieChartSectionData(
-          color: Colors.green[300], // Full budget color
-          value: totalBudget,
-          title: 'Budget \$${totalBudget.toStringAsFixed(1)}',
-          radius: 70.0,
-          titleStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      );
-    }
-
-    return PieChart(
-      PieChartData(
-        borderData: FlBorderData(show: false),
-        sectionsSpace: 2,
-        centerSpaceRadius: 40,
-        sections: sections,
       ),
     );
+  }
+
+  List<PieChartSectionData> showingSections() {
+    double total = expenses.fold(0, (sum, item) => sum + item.amount);
+    return List.generate(expenses.length, (i) {
+      final isTouched = i == 0;
+      final double fontSize = isTouched ? 18 : (expenses[i].amount / total > 0.1 ? 14 : 0); // No text if the section is too small
+      final double radius = isTouched ? 60 : 50;
+
+      return PieChartSectionData(
+        color: _getColor(i).withOpacity(0.8),
+        value: expenses[i].amount,
+        title: expenses[i].amount / total > 0.1 ? '\$${expenses[i].amount.toStringAsFixed(2)}' : '',
+        radius: radius,
+        titleStyle: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w300,
+            color: Colors.black),
+        borderSide: BorderSide(color: Colors.white, width: 2),
+      );
+    });
+  }
+
+  Color _getColor(int index) {
+    List<Color> colors = [
+      Colors.red,
+      Colors.green,
+      Colors.blue,
+      Colors.orange,
+      Colors.purple,
+      Colors.brown,
+    ];
+
+    return colors[index % colors.length];
   }
 }
