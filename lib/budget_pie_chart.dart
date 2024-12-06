@@ -16,7 +16,9 @@ class BudgetPieChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
+        Container(
+          height: 500, // Specify the height you want
+          width: double.infinity, // Full width of the parent container
           child: Card(
             elevation: 4,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -27,7 +29,7 @@ class BudgetPieChart extends StatelessWidget {
                 PieChartData(
                   borderData: FlBorderData(show: false),
                   sectionsSpace: 2,
-                  centerSpaceRadius: 50,
+                  centerSpaceRadius: 30, // You might adjust this too if needed
                   sections: showingSections(),
                 ),
               ),
@@ -70,7 +72,7 @@ class BudgetPieChart extends StatelessWidget {
       children: [
         Container(
           width: 16,
-          height: 16,
+          height: 50,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: _getColor(expenses.indexOf(expense)),
