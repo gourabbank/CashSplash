@@ -17,19 +17,19 @@ class BudgetPieChart extends StatelessWidget {
     return Column(
       children: [
         Container(
-          height: 450, // Specify the height you want
-          width: double.infinity, // Full width of the parent container
+          height: 450, // Adjusted height for the pie chart container
+          width: double.infinity,
           child: Card(
             elevation: 4,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            color: Colors.white,
+            color: Colors.pink[50], // Changed to light pink
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: PieChart(
                 PieChartData(
                   borderData: FlBorderData(show: false),
                   sectionsSpace: 2,
-                  centerSpaceRadius: 30, // You might adjust this too if needed
+                  centerSpaceRadius: 30, // Adjusted center space radius
                   sections: showingSections(),
                 ),
               ),
@@ -38,6 +38,17 @@ class BudgetPieChart extends StatelessWidget {
         ),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
+          decoration: BoxDecoration(
+            color: Colors.pink[100], // Lighter pink for the legend
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.pink[200]!, // Slightly darker pink for elevation shadow
+                blurRadius: 6,
+                offset: Offset(0, 3), // Position of the shadow
+              ),
+            ],
+          ),
           child: Wrap(
             alignment: WrapAlignment.spaceEvenly,
             spacing: 8.0,
@@ -80,7 +91,7 @@ class BudgetPieChart extends StatelessWidget {
         ),
         SizedBox(width: 8),
         Text(expense.category + ' - \$${expense.amount.toStringAsFixed(2)}',
-            style: TextStyle(fontSize: 20)),
+            style: TextStyle(fontSize: 14)), // Adjusted for consistent text size
       ],
     );
   }
