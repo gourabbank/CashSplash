@@ -1,12 +1,9 @@
-// AddExpenseScreen.dart
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-import 'home_screen.dart';
+import 'dart:convert';
+import 'dart:io';
 
 class AddExpenseScreen extends StatefulWidget {
   @override
@@ -30,30 +27,22 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   }
 
   Future<void> _saveExpense() async {
-    if (!_formKey.currentState!.validate()) return;
-    try {
-      String? imageString = _receiptImage != null ? base64Encode(await _receiptImage!.readAsBytes()) : null;
-      DatabaseReference dbRef = FirebaseDatabase.instance.ref("expenses/${FirebaseAuth.instance.currentUser?.uid}");
-      await dbRef.push().set({
-        'amount': _amountController.text,
-        'category': _selectedCategory,
-        'receiptImage': imageString,
-        'date': DateTime.now().toIso8601String(),
-      });
-      if (mounted) {
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
-        } else {
-          print("No screens to pop to, navigating to fallback.");
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen()), // Assuming HomeScreen is a sensible fallback
-          );
-        }
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      try {
+        String? imageString = _receiptImage != null ? base64Encode(await _receiptImage!.readAsBytes()) : null;
+        DatabaseReference dbRef = FirebaseDatabase.instance.ref("expenses/${FirebaseAuth.instance.currentUser?.uid}");
+        await dbRef.push().set({
+          'amount': _amountController.text,
+          'category': _selectedCategory,
+          'receiptImage': imageString,
+          'date': DateTime.now().toIso8601String(),
+        });
+        Navigator.pop(context); // Navigate back after save
+      } catch (e) {
+        print("Error saving expense: $e");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save expense. Error: $e')));
       }
-    } catch (e) {
-      print("Error saving expense: $e");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save expense. Error: $e')));
     }
   }
 
@@ -79,7 +68,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   _selectedCategory = newValue;
                 });
               },
-              items: <String>['Food', 'Travel', 'Housing'].map<DropdownMenuItem<String>>((String value) {
+              items: <String>[
+                'Food', 'Travel', 'Housing', 'Utilities', 'Transportation', 'Healthcare', 'Entertainment', 'Education', 'Personal Care', 'Other'
+              ].map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),

@@ -1,5 +1,5 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'expense_data.dart';
 
 class BudgetPieChart extends StatelessWidget {
@@ -14,53 +14,73 @@ class BudgetPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1.3,
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: PieChart(
-            PieChartData(
-              pieTouchData: PieTouchData(
-                touchCallback: (FlTouchEvent event, PieTouchResponse? response) {
-                  // Handle touch interactions here
-                },
-                enabled: true,
+    return Column(
+      children: [
+        Expanded(
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: PieChart(
+                PieChartData(
+                  borderData: FlBorderData(show: false),
+                  sectionsSpace: 2,
+                  centerSpaceRadius: 50,
+                  sections: showingSections(),
+                ),
               ),
-              borderData: FlBorderData(show: false),
-              sectionsSpace: 2,
-              centerSpaceRadius: 50,
-              sections: showingSections(),
-              startDegreeOffset: -90,
             ),
           ),
         ),
-      ),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Wrap(
+            alignment: WrapAlignment.spaceEvenly,
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: expenses.map((expense) => legendItem(expense)).toList(),
+          ),
+        ),
+      ],
     );
   }
 
   List<PieChartSectionData> showingSections() {
-    double total = expenses.fold(0, (sum, item) => sum + item.amount);
     return List.generate(expenses.length, (i) {
-      final isTouched = i == 0;
-      final double fontSize = isTouched ? 18 : (expenses[i].amount / total > 0.1 ? 14 : 0); // No text if the section is too small
-      final double radius = isTouched ? 60 : 50;
+      final bool showTitle = expenses[i].amount / totalBudget > 0.05; // Only show title if the slice is large enough
 
       return PieChartSectionData(
-        color: _getColor(i).withOpacity(0.8),
+        color: _getColor(i),
         value: expenses[i].amount,
-        title: expenses[i].amount / total > 0.1 ? '\$${expenses[i].amount.toStringAsFixed(2)}' : '',
-        radius: radius,
+        title: showTitle ? '\$${expenses[i].amount.toStringAsFixed(2)}' : '',
+        radius: 60.0,
         titleStyle: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w300,
-            color: Colors.black),
-        borderSide: BorderSide(color: Colors.white, width: 2),
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[600]),  // Light grey and slim font
       );
     });
+  }
+
+  Widget legendItem(ExpenseData expense) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _getColor(expenses.indexOf(expense)),
+          ),
+        ),
+        SizedBox(width: 8),
+        Text(expense.category + ' - \$${expense.amount.toStringAsFixed(2)}',
+            style: TextStyle(fontSize: 14)),
+      ],
+    );
   }
 
   Color _getColor(int index) {
