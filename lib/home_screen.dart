@@ -68,22 +68,25 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Welcome, $_userName'),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.purple.shade200,
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          buildHomeScreenBody(),
-          AddExpenseScreen(),
-          ViewExpensesScreen(),
-          ProfileSettingsScreen(),
-        ],
+      body: Container(
+        color: Colors.pink.shade100, // Light pink background color
+        child: IndexedStack(
+          index: _currentIndex,
+          children: [
+            buildHomeScreenBody(),
+            AddExpenseScreen(),
+            ViewExpensesScreen(),
+            ProfileSettingsScreen(),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
-        backgroundColor: Colors.teal,
-        selectedItemColor: Colors.white,
+        backgroundColor: Colors.purple,
+        selectedItemColor: Colors.pink.shade100,
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
@@ -120,9 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         Expanded(
           child: StreamBuilder(
-            stream: FirebaseDatabase.instance
-                .ref('expenses/${FirebaseAuth.instance.currentUser?.uid}')
-                .onValue,
+            stream: FirebaseDatabase.instance.ref('expenses/${FirebaseAuth.instance.currentUser?.uid}').onValue,
             builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
@@ -139,9 +140,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     amount: double.tryParse(value['amount'].toString()) ?? 0.0,
                   ));
                 });
-                return BudgetPieChart(
-                  totalBudget: _totalBudget,
-                  expenses: expenses,
+                return Container(
+                  height: 20, // Reducing the size by setting height
+                  child: BudgetPieChart(
+                    totalBudget: _totalBudget,
+                    expenses: expenses,
+                  ),
                 );
               } else {
                 return Text("No expenses data available", style: TextStyle(fontSize: 20, color: Colors.grey));

@@ -55,7 +55,7 @@ class BudgetPieChart extends StatelessWidget {
         color: _getColor(i),
         value: expenses[i].amount,
         title: showTitle ? '\$${expenses[i].amount.toStringAsFixed(2)}' : '',
-        radius: 60.0,
+        radius: 120.0,
         titleStyle: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,

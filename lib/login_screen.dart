@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project/home_screen.dart';
+import 'signup_screen.dart';
 import 'view_expenses_screen.dart'; // Make sure to import the expenses screen
 
 class LoginScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> signIn(String email, String password) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-      // Redirect to View Expenses Screen upon successful login
+      // Redirect to Home Screen upon successful login
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => HomeScreen())
       );
@@ -44,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
               obscureText: true,
               decoration: InputDecoration(labelText: 'Password'),
             ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
@@ -53,9 +55,20 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               child: Text('Login'),
             ),
+            SizedBox(height: 10),
+      // Correct the class name from SignUpScreen to SignupScreen
+      TextButton(
+        onPressed: () {
+          // Correct navigation to SignupScreen
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignupScreen()));
+        },
+        child: Text('No account? Sign up'),
+      ),
           ],
         ),
       ),
     );
   }
 }
+
+// Make sure to have a SignUpScreen widget available in your project to handle sign-ups

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'home_screen.dart'; // Ensure this import is correct based on your file structure
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -13,7 +14,10 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<void> signUp(String email, String password) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-      Navigator.of(context).pushReplacementNamed('/home');
+      // Navigate directly to HomeScreen upon successful sign-up
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen())
+      );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to sign up: ${e.message}')));
     }
@@ -26,6 +30,7 @@ class _SignupScreenState extends State<SignupScreen> {
       body: Form(
         key: _formKey,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextFormField(
               validator: (value) => value!.isEmpty ? 'Please enter an email' : null,
@@ -38,6 +43,7 @@ class _SignupScreenState extends State<SignupScreen> {
               obscureText: true,
               decoration: InputDecoration(labelText: 'Password'),
             ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
