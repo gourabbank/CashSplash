@@ -14,7 +14,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
   double _totalBudget = 2000.0;
   double _remainingBudget = 2000.0;
   String _userName = "User";
@@ -56,47 +55,26 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _navigateToScreen(BuildContext context, Widget screen) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => screen),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          _buildModernHomeScreen(),
-          AddExpenseScreen(),
-          ViewExpensesScreen(),
-          ProfileSettingsScreen(),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 15,
-              offset: Offset(0, -3),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          backgroundColor: Colors.white,
-          selectedItemColor: Color(0xFF6B46C1),
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: "Home"),
-            BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: "Add"),
-            BottomNavigationBarItem(icon: Icon(Icons.list_alt_rounded), label: "View"),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
-          ],
-        ),
+      body: _buildModernHomeScreen(context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _navigateToScreen(context, AddExpenseScreen()),
+        child: Icon(Icons.add),
+        backgroundColor: Color(0xFF6B46C1),
       ),
     );
   }
 
-  Widget _buildModernHomeScreen() {
+  Widget _buildModernHomeScreen(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -115,18 +93,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Welcome back,',
-                      style: TextStyle(color: Colors.white70, fontSize: 16),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      _userName,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Welcome back,',
+                              style: TextStyle(color: Colors.white70, fontSize: 16),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              _userName,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.person, color: Colors.white),
+                          onPressed: () => _navigateToScreen(context, ProfileSettingsScreen()),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -141,6 +133,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   _buildBudgetCard(),
                   SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Expense Overview',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => _navigateToScreen(context, ViewExpensesScreen()),
+                        child: Text(
+                          'View All',
+                          style: TextStyle(
+                            color: Color(0xFF6B46C1),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   _buildExpensesSection(),
                   SizedBox(height: 100),
                 ],
@@ -323,4 +336,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
