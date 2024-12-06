@@ -1,11 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'expense_service.dart';
-import 'expense_model.dart';
-
-import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'dart:convert';
 
 class ViewExpensesScreen extends StatefulWidget {
   @override
@@ -26,14 +22,11 @@ class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
     dbRef.onValue.listen((DatabaseEvent event) {
       final data = event.snapshot.value;
       if (data != null && data is Map<dynamic, dynamic>) {
-        // Convert the data properly here
         final allExpenses = data.map((key, value) => MapEntry(key as String, Map<String, dynamic>.from(value as Map)));
         setState(() {
           expenses = allExpenses.values.toList();
         });
       } else {
-        // Handle null or unexpected data types
-        print("No data available or data is not in expected format");
         setState(() {
           expenses = [];
         });
@@ -49,17 +42,24 @@ class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("View Expenses")),
+      appBar: AppBar(
+        title: Text("View Expenses"),
+        // backgroundColor: Colors.deepPurple, // Enhanced AppBar color
+      ),
       body: ListView.builder(
         itemCount: expenses.length,
         itemBuilder: (context, index) {
           var expense = expenses[index];
-          return ListTile(
-            title: Text("\$${expense['amount']} - ${expense['category']}"),
-            subtitle: Text("Date: ${expense['date']}"),
-            trailing: IconButton(
-              icon: Icon(Icons.receipt),
-              onPressed: () => _showReceipt(expense['receiptImage']),
+          return Card( // Use Card for better UI
+            margin: EdgeInsets.all(8.0),
+            child: ListTile(
+              title: Text("\$${expense['amount']} - ${expense['category']}", style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text("Date: ${DateTime.parse(expense['date']).toLocal()}"), // Improved date formatting
+              trailing: IconButton(
+                icon: Icon(Icons.visibility), // Changed icon for better understanding
+                onPressed: () => _showReceipt(expense['receiptImage']),
+                color: Colors.purple, // Matching icon color with AppBar
+              ),
             ),
           );
         },

@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, $_userName'),
+        // title: Text('Welcome, $_userName'),
         backgroundColor: Colors.purple.shade200,
       ),
       body: Container(
