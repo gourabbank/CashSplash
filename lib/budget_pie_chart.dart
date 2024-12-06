@@ -17,7 +17,7 @@ class BudgetPieChart extends StatelessWidget {
     return Column(
       children: [
         Container(
-          height: 500, // Specify the height you want
+          height: 450, // Specify the height you want
           width: double.infinity, // Full width of the parent container
           child: Card(
             elevation: 4,
@@ -72,7 +72,7 @@ class BudgetPieChart extends StatelessWidget {
       children: [
         Container(
           width: 16,
-          height: 50,
+          height: 16,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: _getColor(expenses.indexOf(expense)),
@@ -80,7 +80,7 @@ class BudgetPieChart extends StatelessWidget {
         ),
         SizedBox(width: 8),
         Text(expense.category + ' - \$${expense.amount.toStringAsFixed(2)}',
-            style: TextStyle(fontSize: 14)),
+            style: TextStyle(fontSize: 20)),
       ],
     );
   }

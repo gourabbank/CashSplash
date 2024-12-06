@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'login_screen.dart'; // Ensure you have the LoginScreen widget
+import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
+import 'login_screen.dart'; // Ensure the login screen is available
 
 class ProfileSettingsScreen extends StatefulWidget {
   @override
@@ -12,7 +16,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _budgetController = TextEditingController();
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref();
-  bool _isLoading = true; // State to manage loading
+  bool _isLoading = true;
+  String _imageBase64 = "";
+  final picker = ImagePicker();
 
   @override
   void initState() {
@@ -28,42 +34,48 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           Map<String, dynamic> data = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
           _nameController.text = data['name'] ?? '';
           _budgetController.text = data['budgetGoal'] ?? '';
+          _imageBase64 = data['image'] ?? '';
         }
         setState(() {
-          _isLoading = false; // Loading complete
+          _isLoading = false;
         });
-      }).catchError((error) {
-        print("Failed to fetch user profile: $error");
-        setState(() => _isLoading = false);
       });
     } else {
-      setState(() => _isLoading = false); // No user logged in
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> pickImageAndEncode() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      Uint8List bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageBase64 = base64Encode(bytes);
+      });
     }
   }
 
   void saveProfileSettings() {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      dbRef.child('user_profiles').child(user.uid).set({
+      dbRef.child('user_profiles').child(user.uid).update({
         'name': _nameController.text,
         'budgetGoal': _budgetController.text,
+        'image': _imageBase64,
       }).then((_) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Profile settings saved successfully'))
-        );
+            SnackBar(content: Text('Profile settings saved successfully')));
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save profile settings: $error'))
-        );
+            SnackBar(content: Text('Failed to save profile settings: $error')));
       });
     }
   }
 
   void logout() async {
     await FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-          (Route<dynamic> route) => false,
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => LoginScreen())
     );
   }
 
@@ -81,10 +93,15 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       body: ListView(
         padding: EdgeInsets.all(16),
         children: <Widget>[
-          CircleAvatar(
-            radius: 50,
-            backgroundImage: NetworkImage('https://via.placeholder.com/150'), // Placeholder image
-            backgroundColor: Colors.grey.shade200,
+          InkWell(
+            onTap: pickImageAndEncode, // Bind the image picker function to onTap
+            child: CircleAvatar(
+              radius: 50,
+              backgroundImage: _imageBase64.isEmpty
+                  ? NetworkImage('https://via.placeholder.com/150')
+                  : MemoryImage(base64Decode(_imageBase64)),
+              backgroundColor: Colors.grey.shade200,
+            ),
           ),
           SizedBox(height: 20),
           TextFormField(
@@ -107,7 +124,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             onPressed: logout,
             child: Text('Logout'),
             style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor: Colors.red, // White text color
+              backgroundColor: Colors.red,
             ),
           ),
         ],
