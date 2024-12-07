@@ -12,7 +12,7 @@ class ViewExpensesScreen extends StatefulWidget {
 class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
   List<Map<String, dynamic>> expenses = [];
   final currencyFormatter = NumberFormat.currency(symbol: '\$');
-  Map<String, String> expenseIds = {}; // Store expense IDs for deletion
+  Map<String, String> expenseIds = {};
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
           data.forEach((key, value) {
             final expenseData = Map<String, dynamic>.from(value as Map);
             expenses.add(expenseData);
-            expenseIds[expenseData['date']] = key.toString(); // Store ID with date as key
+            expenseIds[expenseData['date']] = key.toString();
           });
 
           expenses.sort((a, b) => DateTime.parse(b['date']).compareTo(DateTime.parse(a['date'])));
@@ -121,6 +121,58 @@ class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
       'Entertainment': Colors.purple,
     };
     return colors[category] ?? Colors.teal;
+  }
+
+  void _showReceipt(String? base64Image) {
+    if (base64Image == null || base64Image.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("No receipt image available"),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final decodedImage = base64Decode(base64Image);
+
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBar(
+                title: const Text("Receipt"),
+                centerTitle: true,
+                automaticallyImplyLeading: false,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Image.memory(decodedImage),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Failed to load receipt image"),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
   }
 
   @override
@@ -241,46 +293,6 @@ class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showReceipt(String? base64Image) {
-    if (base64Image == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("No receipt image available"),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppBar(
-              title: const Text("Receipt"),
-              centerTitle: true,
-              automaticallyImplyLeading: false,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            Flexible(
-              child: SingleChildScrollView(
-                child: Image.memory(base64Decode(base64Image)),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

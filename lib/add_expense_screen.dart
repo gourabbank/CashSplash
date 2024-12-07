@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert'; // Add this import
 import 'home_screen.dart';
 
 class AddExpenseScreen extends StatefulWidget {
@@ -17,6 +18,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final categories = ['Food', 'Travel', 'Rent', 'Shopping', 'Utilities', 'Other'];
   File? _receiptImage;
   final picker = ImagePicker();
+
+  // New method to convert image to base64
+  Future<String> _imageToBase64(File imageFile) async {
+    List<int> imageBytes = await imageFile.readAsBytes();
+    return base64Encode(imageBytes);
+  }
 
   @override
   void dispose() {
@@ -39,7 +46,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       _selectedCategory = null;
       _receiptImage = null;
     });
-    // Reset focus
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
@@ -67,16 +73,23 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return true;
   }
 
+  // Modified _saveExpense method
   Future<void> _saveExpense() async {
     if (!_formKey.currentState!.validate()) return;
 
     try {
+      // Convert image to base64 if exists
+      String? base64Image;
+      if (_receiptImage != null) {
+        base64Image = await _imageToBase64(_receiptImage!);
+      }
+
       DatabaseReference dbRef = FirebaseDatabase.instance.ref("expenses/${FirebaseAuth.instance.currentUser?.uid}");
       await dbRef.push().set({
         'amount': _amountController.text,
         'category': _selectedCategory,
         'date': DateTime.now().toIso8601String(),
-        'receipt': _receiptImage?.path,
+        'receiptImage': base64Image, // Store base64 string
       });
 
       if (!context.mounted) return;
