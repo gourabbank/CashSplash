@@ -1,110 +1,48 @@
-import 'dart:ui';
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class BudgetNotificationService {
-  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
-  bool _hasNotified = false; // Prevent multiple notifications
+  static final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
+  static bool _hasNotified = false;
 
-  Future<void> initialize() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+  static Future<void> initialize() async {
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const initSettings = InitializationSettings(android: androidSettings);
 
-    final InitializationSettings initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
-
-    await _notificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
-        // Handle notification tap
-      },
-    );
+    await _notifications.initialize(initSettings);
   }
 
-  Future<void> showBudgetWarning(double percentage, double remainingAmount) async {
-    if (_hasNotified) return; // Only notify once per threshold crossing
+  static Future<void> showBudgetAlert(double percentage, double remaining) async {
+    if (_hasNotified) return;
 
-    await _notificationsPlugin.show(
+    const androidDetails = AndroidNotificationDetails(
+      'budget_alert',
+      'Budget Alerts',
+      channelDescription: 'Alerts for budget thresholds',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    await _notifications.show(
       0,
       'Budget Alert',
-      'You have used ${percentage.toStringAsFixed(1)}% of your budget! \$${remainingAmount.toStringAsFixed(2)} remaining.',
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'budget_warning',
-          'Budget Warnings',
-          channelDescription: 'Notifications for budget warnings',
-          importance: Importance.high,
-          priority: Priority.high,
-          color: const Color(0xFF6B46C1),
-        ),
-      ),
+      'You have used ${percentage.toStringAsFixed(1)}% of your budget. \$${remaining.toStringAsFixed(2)} remaining.',
+      const NotificationDetails(android: androidDetails),
     );
 
     _hasNotified = true;
   }
 
-  void resetNotificationFlag() {
-    _hasNotified = false;
-  }
+  static void checkBudget(double totalBudget, double totalSpent) {
+    double percentageUsed = (totalSpent / totalBudget) * 100;
+    double remaining = totalBudget - totalSpent;
 
-  void monitorBudget() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    // Listen to expenses
-    FirebaseDatabase.instance
-        .ref('expenses/${user.uid}')
-        .onValue
-        .listen((event) {
-      if (event.snapshot.value != null) {
-        _calculateBudgetUsage();
-      }
-    });
-  }
-
-  Future<void> _calculateBudgetUsage() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    try {
-      // Get budget goal
-      final budgetSnapshot = await FirebaseDatabase.instance
-          .ref('user_profiles/${user.uid}')
-          .get();
-
-      if (!budgetSnapshot.exists) return;
-
-      final userData = budgetSnapshot.value as Map<dynamic, dynamic>;
-      final totalBudget = double.parse(userData['budgetGoal'].toString());
-
-      // Get total expenses
-      final expensesSnapshot = await FirebaseDatabase.instance
-          .ref('expenses/${user.uid}')
-          .get();
-
-      if (!expensesSnapshot.exists) return;
-
-      final expenses = expensesSnapshot.value as Map<dynamic, dynamic>;
-      double totalSpent = 0;
-
-      expenses.forEach((key, value) {
-        totalSpent += double.parse(value['amount'].toString());
-      });
-
-      // Calculate percentage used
-      final percentageUsed = (totalSpent / totalBudget) * 100;
-      final remaining = totalBudget - totalSpent;
-
-      // Show warning if over 80% and haven't notified yet
-      if (percentageUsed >= 80 && !_hasNotified) {
-        await showBudgetWarning(percentageUsed, remaining);
-      } else if (percentageUsed < 80) {
-        resetNotificationFlag(); // Reset flag when back under threshold
-      }
-    } catch (e) {
-      print('Error calculating budget usage: $e');
+    if (percentageUsed >= 80 && !_hasNotified) {
+      showBudgetAlert(percentageUsed, remaining);
+    } else if (percentageUsed < 80) {
+      _hasNotified = false;
     }
   }
 }

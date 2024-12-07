@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'add_expense_screen.dart';
+import 'budget_notification_service.dart';
 import 'budget_pie_chart.dart';
 import 'view_expenses_screen.dart';
 import 'profile_settings_screen.dart';
@@ -22,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _fetchUserProfileAndBudget();
+    BudgetNotificationService.initialize();
   }
 
   void _fetchUserProfileAndBudget() {
@@ -51,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       setState(() {
         _remainingBudget = _totalBudget - totalSpent;
+        BudgetNotificationService.checkBudget(_totalBudget, totalSpent);
       });
     });
   }
