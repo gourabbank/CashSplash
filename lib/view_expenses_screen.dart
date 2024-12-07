@@ -10,8 +10,9 @@ class ViewExpensesScreen extends StatefulWidget {
 }
 
 class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
-  List<Map<dynamic, dynamic>> expenses = [];
+  List<Map<String, dynamic>> expenses = [];
   final currencyFormatter = NumberFormat.currency(symbol: '\$');
+  Map<String, String> expenseIds = {}; // Store expense IDs for deletion
 
   @override
   void initState() {
@@ -24,22 +25,92 @@ class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
     dbRef.onValue.listen((DatabaseEvent event) {
       final data = event.snapshot.value;
       if (data != null && data is Map<dynamic, dynamic>) {
-        final allExpenses = data.map((key, value) => MapEntry(key as String, Map<String, dynamic>.from(value as Map)));
         setState(() {
-          expenses = allExpenses.values.toList()
-            ..sort((a, b) => DateTime.parse(b['date']).compareTo(DateTime.parse(a['date'])));
+          expenseIds.clear();
+          expenses.clear();
+
+          data.forEach((key, value) {
+            final expenseData = Map<String, dynamic>.from(value as Map);
+            expenses.add(expenseData);
+            expenseIds[expenseData['date']] = key.toString(); // Store ID with date as key
+          });
+
+          expenses.sort((a, b) => DateTime.parse(b['date']).compareTo(DateTime.parse(a['date'])));
         });
       } else {
         setState(() {
           expenses = [];
+          expenseIds.clear();
         });
       }
     }, onError: (error) {
       print("Failed to load expenses: $error");
       setState(() {
         expenses = [];
+        expenseIds.clear();
       });
     });
+  }
+
+  Future<void> _deleteExpense(int index) async {
+    final expense = expenses[index];
+    final expenseId = expenseIds[expense['date']];
+
+    if (expenseId == null) return;
+
+    try {
+      await FirebaseDatabase.instance
+          .ref("expenses/${FirebaseAuth.instance.currentUser?.uid}/$expenseId")
+          .remove();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Expense deleted successfully'),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete expense: $error'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
+  }
+
+  Future<bool> _confirmDelete() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete Expense'),
+        content: Text('Are you sure you want to delete this expense?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   Color _getCategoryColor(String category) {
@@ -66,7 +137,9 @@ class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.receipt_long_outlined, size: 64, color: Theme.of(context).colorScheme.secondary),
+            Icon(Icons.receipt_long_outlined,
+                size: 64,
+                color: Theme.of(context).colorScheme.secondary),
             const SizedBox(height: 16),
             Text(
               'No expenses yet',
@@ -85,61 +158,79 @@ class _ViewExpensesScreenState extends State<ViewExpensesScreen> {
                   var expense = expenses[index];
                   String formattedDate = DateFormat('MMM d, y').format(DateTime.parse(expense['date']));
 
-                  return Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: InkWell(
-                      onTap: () => _showReceipt(expense['receiptImage']),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    expense['category'],
-                                    style: Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: _getCategoryColor(expense['category']).withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    currencyFormatter.format(double.parse(expense['amount'].toString())),
-                                    style: TextStyle(
-                                      color: _getCategoryColor(expense['category']),
-                                      fontWeight: FontWeight.bold,
+                  return Dismissible(
+                    key: Key(expense['date']),
+                    direction: DismissDirection.endToStart,
+                    confirmDismiss: (direction) => _confirmDelete(),
+                    onDismissed: (direction) => _deleteExpense(index),
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.only(right: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
+                    ),
+                    child: Card(
+                      elevation: 2,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: InkWell(
+                        onTap: () => _showReceipt(expense['receiptImage']),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      expense['category'],
+                                      style: Theme.of(context).textTheme.titleMedium,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  formattedDate,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: _getCategoryColor(expense['category']).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      currencyFormatter.format(double.parse(expense['amount'].toString())),
+                                      style: TextStyle(
+                                        color: _getCategoryColor(expense['category']),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                if (expense['receiptImage'] != null)
-                                  Icon(
-                                    Icons.receipt_outlined,
-                                    size: 20,
-                                    color: Theme.of(context).colorScheme.primary,
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    formattedDate,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
-                              ],
-                            ),
-                          ],
+                                  if (expense['receiptImage'] != null)
+                                    Icon(
+                                      Icons.receipt_outlined,
+                                      size: 20,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

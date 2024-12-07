@@ -1,50 +1,50 @@
 [
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/mipmap-xhdpi_ic_launcher.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/mipmap-xhdpi/ic_launcher.png"
+        "merged": "com.example.project.app-merged_res-35:/drawable-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.project.app-main-29:/drawable-xhdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "com.example.project.app-merged_res-35:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.example.project.app-main-29:/mipmap-mdpi/ic_launcher.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/drawable-xxhdpi_ic_launcher_foreground.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/drawable-xxhdpi/ic_launcher_foreground.png"
+        "merged": "com.example.project.app-merged_res-35:/drawable-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.project.app-main-29:/drawable-xxxhdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/mipmap-xxxhdpi_ic_launcher.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/mipmap-xxxhdpi/ic_launcher.png"
+        "merged": "com.example.project.app-merged_res-35:/drawable-v21_launch_background.xml.flat",
+        "source": "com.example.project.app-main-29:/drawable-v21/launch_background.xml"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/drawable-mdpi_ic_launcher_foreground.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/drawable-mdpi/ic_launcher_foreground.png"
+        "merged": "com.example.project.app-merged_res-35:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.example.project.app-main-29:/mipmap-xxxhdpi/ic_launcher.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/mipmap-xxhdpi_ic_launcher.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/mipmap-xxhdpi/ic_launcher.png"
+        "merged": "com.example.project.app-merged_res-35:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.example.project.app-main-29:/mipmap-xhdpi/ic_launcher.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/mipmap-mdpi_ic_launcher.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/mipmap-mdpi/ic_launcher.png"
+        "merged": "com.example.project.app-merged_res-35:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.example.project.app-main-29:/mipmap-xxhdpi/ic_launcher.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/drawable-hdpi_ic_launcher_foreground.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/drawable-hdpi/ic_launcher_foreground.png"
+        "merged": "com.example.project.app-merged_res-35:/drawable-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.project.app-main-29:/drawable-hdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/drawable-xxxhdpi_ic_launcher_foreground.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/drawable-xxxhdpi/ic_launcher_foreground.png"
+        "merged": "com.example.project.app-merged_res-35:/drawable-mdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.project.app-main-29:/drawable-mdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/mipmap-hdpi_ic_launcher.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/mipmap-hdpi/ic_launcher.png"
+        "merged": "com.example.project.app-merged_res-35:/drawable-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.project.app-main-29:/drawable-xxhdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/drawable-v21_launch_background.xml.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/drawable-v21/launch_background.xml"
+        "merged": "com.example.project.app-merged_res-35:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.example.project.app-main-29:/mipmap-hdpi/ic_launcher.png"
     },
     {
-        "merged": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-merged_res-35:/drawable-xhdpi_ic_launcher_foreground.png.flat",
-        "source": "/Users/gourabbank/.gradle/daemon/8.3/com.example.project.app-main-29:/drawable-xhdpi/ic_launcher_foreground.png"
+        "merged": "com.example.project.app-merged_res-35:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.project.app-main-29:/mipmap-anydpi-v26/ic_launcher.xml"
     }
 ]
