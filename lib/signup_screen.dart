@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'home_screen.dart';
+import 'main.dart'; // Import MainAppScreen
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -57,9 +57,10 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
       });
 
       if (mounted) {
+        // Navigate to MainAppScreen instead of HomeScreen
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(),
+            pageBuilder: (context, animation, secondaryAnimation) => MainAppScreen(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
             },

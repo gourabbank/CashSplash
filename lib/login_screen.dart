@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:project/home_screen.dart';
-import 'signup_screen.dart';
+import 'package:project/signup_screen.dart';
+import 'main.dart'; // Import MainAppScreen
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => HomeScreen())
+        MaterialPageRoute(builder: (context) => MainAppScreen()), // Navigate to MainAppScreen
       );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
