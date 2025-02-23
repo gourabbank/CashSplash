@@ -213,21 +213,21 @@
     },
     {
       "name": "flutter_local_notifications",
-      "rootUri": "file:///Users/gourabbank/.pub-cache/hosted/pub.dev/flutter_local_notifications-16.3.3",
+      "rootUri": "file:///Users/gourabbank/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.1"
     },
     {
       "name": "flutter_local_notifications_linux",
-      "rootUri": "file:///Users/gourabbank/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-4.0.1",
+      "rootUri": "file:///Users/gourabbank/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-5.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.1"
     },
     {
       "name": "flutter_local_notifications_platform_interface",
-      "rootUri": "file:///Users/gourabbank/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-7.2.0",
+      "rootUri": "file:///Users/gourabbank/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-8.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.1"
     },
     {
       "name": "flutter_plugin_android_lifecycle",
@@ -500,7 +500,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2024-12-07T03:45:32.144268Z",
+  "generated": "2024-12-09T01:03:52.955109Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///opt/homebrew/Caskroom/flutter/3.24.4/flutter",
