@@ -9,8 +9,6 @@ flutter/ephemeral/
 # Visual Studio build-related files.
 x64/
 x86/
-build/
-*.apk
 # Visual Studio cache files
 # files ending in .cache can be ignored
 *.[Cc]ache
